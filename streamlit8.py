@@ -24,6 +24,44 @@ st.write("Mashallah 🚀 App is running...")
 import os
 os.environ["STREAMLIT_SERVER_FILE_WATCHER_TYPE"] = "none"
 
+ بأعلى الصفحة
+st.markdown("""
+<style>
+/* الخلفية العامة */
+.stApp, [data-testid="stAppViewContainer"]{
+    background: #ffffff !important;
+}
+
+/* لون النص العام */
+[data-testid="stAppViewContainer"] *{
+    color: #111827 !important;
+}
+
+/* كرت الجواب */
+.answer-card{
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 14px !important;
+    padding: 16px 18px !important;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.06) !important;
+    line-height: 1.8;
+    font-size: 18px;
+}
+
+.answer-card a{
+    color: #1f77b4 !important;
+    text-decoration: underline;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# عرض الجواب — بعد ما يتولد النص النهائي
+final_answer_text = "هنا سيتم وضع الجواب من نظامك لاحقًا"  # مثال مؤقت
+safe = final_answer_text.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\n","<br>")
+st.markdown(f"<div class='answer-card'>{safe}</div>", unsafe_allow_html=True)
+
+
 from core import (
     init_openai_client,
     list_available_domains,
