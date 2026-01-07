@@ -21,6 +21,9 @@ import streamlit as st
 
 st.write("Mashallah 🚀 App is running...")
 
+import os
+os.environ["STREAMLIT_SERVER_FILE_WATCHER_TYPE"] = "none"
+
 from core import (
     init_openai_client,
     list_available_domains,
