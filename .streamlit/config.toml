@@ -1,8 +1,6 @@
 [server]
-fileWatcherType = "none"
+fileWatcherType="none"
 
-[theme]
-base="light"
 
 
 
