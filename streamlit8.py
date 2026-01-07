@@ -18,39 +18,54 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 import streamlit as st
-
 st.markdown("""
 <style>
-/* إجبار الخلفية Light */
-html, body, .stApp, .stAppViewContainer, .main {
+
+/* خلفية التطبيق */
+.stApp, .main, [data-testid="stAppViewContainer"] {
+    background: white !important;
+}
+
+/* النص العام */
+* {
+    color: black !important;
+    font-family: "Segoe UI", sans-serif;
+}
+
+/* السايدبار */
+[data-testid="stSidebar"] {
+    background: #f8f9fa !important;
+}
+
+/* صناديق الإدخال */
+input, textarea {
     background: #ffffff !important;
-    color: #000000 !important;
+    border: 1px solid #ccc !important;
+    border-radius: 6px !important;
+    padding: 8px !important;
+    color: black !important;
 }
 
-/* إجبار لون النص */
-h1, h2, h3, h4, h5, h6, p, span, div, li, label {
-    color: #000000 !important;
+/* أزرار */
+button {
+    background: #e9ecef !important;
+    border-radius: 6px !important;
+    border: 1px solid #adb5bd !important;
+    padding: 6px 12px !important;
 }
 
-/* تعديل صناديق Streamlit */
-[data-testid="stSidebar"],
-[data-testid="stSidebarContent"] {
-    background: #f2f2f2 !important;
+/* الكروت والصناديق */
+.stMarkdown, .stText {
+    background: #ffffff !important;
 }
 
-/* صندوق الإجابة */
-.answer-box {
-    background: #f3f4f6 !important;
-    padding: 16px;
-    border-radius: 12px;
-    border: 1px solid #d1d5db;
-    font-size: 20px;
-    line-height: 1.7;
-    color: #000000 !important;
+/* أي container داخلي */
+div[data-testid="stMarkdownContainer"] {
+    background: white !important;
 }
+
 </style>
 """, unsafe_allow_html=True)
-
         
 from core import (
     init_openai_client,
