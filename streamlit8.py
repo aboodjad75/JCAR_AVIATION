@@ -20,7 +20,6 @@ from typing import List, Dict, Any, Optional
 import streamlit as st
 
 
-st.title("🔥 You are editing the correct file!")
 
 
 from core import (
