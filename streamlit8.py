@@ -19,7 +19,8 @@ from typing import List, Dict, Any, Optional
 
 import streamlit as st
 
-raise SystemExit("THIS FILE IS RUNNING")
+
+st.title("🔥 You are editing the correct file!")
 
 
 from core import (
