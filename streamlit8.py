@@ -18,7 +18,36 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 import streamlit as st
+st.set_page_config(
+    page_title="JCAR Aviation GPT",
+    page_icon="✈️",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
+st.markdown("""
+<style>
+/* خلفية فاتحة ونص غامق */
+.stApp { background: #ffffff; color: #111111; }
+[data-testid="stSidebar"] { background: #f7f7f7; }
+h1,h2,h3,h4,h5,h6,p,li,span,div { color: #111111 !important; }
+
+/* صندوق الإجابة */
+.answer-box{
+  background:#f3f4f6;
+  padding:16px;
+  border-radius:12px;
+  border:1px solid #e5e7eb;
+  font-size:18px;
+  line-height:1.7;
+}
+</style>
+""", unsafe_allow_html=True)
+st.markdown(f'<div class="answer-box">{result["answer"]}</div>', unsafe_allow_html=True)
+with st.expander("📌 Sources"):
+    for s in result.get("sources", []):
+        st.write(f"- {s}")
+        
 from core import (
     init_openai_client,
     list_available_domains,
