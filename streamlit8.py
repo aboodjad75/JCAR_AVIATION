@@ -43,10 +43,8 @@ h1,h2,h3,h4,h5,h6,p,li,span,div { color: #111111 !important; }
 }
 </style>
 """, unsafe_allow_html=True)
-st.markdown(f'<div class="answer-box">{result["answer"]}</div>', unsafe_allow_html=True)
-with st.expander("📌 Sources"):
-    for s in result.get("sources", []):
-        st.write(f"- {s}")
+
+
         
 from core import (
     init_openai_client,
