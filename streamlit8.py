@@ -19,9 +19,7 @@ from typing import List, Dict, Any, Optional
 
 import streamlit as st
 
-import os
-st.info(f"RUNNING FILE: {__file__}")
-st.info(f"WORKDIR: {os.getcwd()}")
+raise SystemExit("THIS FILE IS RUNNING")
 
 
 from core import (
