@@ -19,6 +19,11 @@ from typing import List, Dict, Any, Optional
 
 import streamlit as st
 
+import os
+st.info(f"RUNNING FILE: {__file__}")
+st.info(f"WORKDIR: {os.getcwd()}")
+
+
 from core import (
     init_openai_client,
     list_available_domains,
