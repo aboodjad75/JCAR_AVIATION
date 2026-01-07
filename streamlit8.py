@@ -18,6 +18,9 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 import streamlit as st
+
+st.write("Mashallah 🚀 App is running...")
+
 from core import (
     init_openai_client,
     list_available_domains,
