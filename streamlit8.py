@@ -18,55 +18,6 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 import streamlit as st
-st.markdown("""
-<style>
-
-/* خلفية التطبيق */
-.stApp, .main, [data-testid="stAppViewContainer"] {
-    background: white !important;
-}
-
-/* النص العام */
-* {
-    color: black !important;
-    font-family: "Segoe UI", sans-serif;
-}
-
-/* السايدبار */
-[data-testid="stSidebar"] {
-    background: #f8f9fa !important;
-}
-
-/* صناديق الإدخال */
-input, textarea {
-    background: #ffffff !important;
-    border: 1px solid #ccc !important;
-    border-radius: 6px !important;
-    padding: 8px !important;
-    color: black !important;
-}
-
-/* أزرار */
-button {
-    background: #e9ecef !important;
-    border-radius: 6px !important;
-    border: 1px solid #adb5bd !important;
-    padding: 6px 12px !important;
-}
-
-/* الكروت والصناديق */
-.stMarkdown, .stText {
-    background: #ffffff !important;
-}
-
-/* أي container داخلي */
-div[data-testid="stMarkdownContainer"] {
-    background: white !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
-        
 from core import (
     init_openai_client,
     list_available_domains,
