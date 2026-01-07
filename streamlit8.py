@@ -18,32 +18,38 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 import streamlit as st
-st.set_page_config(
-    page_title="JCAR Aviation GPT",
-    page_icon="✈️",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 st.markdown("""
 <style>
-/* خلفية فاتحة ونص غامق */
-.stApp { background: #ffffff; color: #111111; }
-[data-testid="stSidebar"] { background: #f7f7f7; }
-h1,h2,h3,h4,h5,h6,p,li,span,div { color: #111111 !important; }
+/* إجبار الخلفية Light */
+html, body, .stApp, .stAppViewContainer, .main {
+    background: #ffffff !important;
+    color: #000000 !important;
+}
+
+/* إجبار لون النص */
+h1, h2, h3, h4, h5, h6, p, span, div, li, label {
+    color: #000000 !important;
+}
+
+/* تعديل صناديق Streamlit */
+[data-testid="stSidebar"],
+[data-testid="stSidebarContent"] {
+    background: #f2f2f2 !important;
+}
 
 /* صندوق الإجابة */
-.answer-box{
-  background:#f3f4f6;
-  padding:16px;
-  border-radius:12px;
-  border:1px solid #e5e7eb;
-  font-size:18px;
-  line-height:1.7;
+.answer-box {
+    background: #f3f4f6 !important;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    font-size: 20px;
+    line-height: 1.7;
+    color: #000000 !important;
 }
 </style>
 """, unsafe_allow_html=True)
-
 
         
 from core import (
