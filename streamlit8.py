@@ -1,93 +1,24 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+streamlit.py
+-------------
+User-controlled Domain + Part scope
+Evidence-based warning (diagnostic Top-K on ALL)
+Strict Part filtering via allowed_parts -> core.run_rag_query
+Follow-up: yes/نعم/original text -> show original chunks without re-running RAG
+Optional debug lines
+"""
+
 from __future__ import annotations
 
-import os
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 import streamlit as st
 
-# ---- Important: set BEFORE any heavy work / watchers ----
-os.environ["STREAMLIT_SERVER_FILE_WATCHER_TYPE"] = "none"
-
-# ---- IMPORTANT: must be the first Streamlit call ----
-st.set_page_config(
-    page_title="JCAR RAG – Inspector Chat",
-    page_icon="✈️",
-    layout="wide",
-)
-
-# =========================
-# Light UI + Answer Card
-# =========================
-st.markdown(
-    """
-<style>
-.block-container { padding-top: 1.5rem; max-width: 1100px; }
-
-/* App background */
-.stApp, [data-testid="stAppViewContainer"] { background: #ffffff !important; }
-
-/* Global text color */
-[data-testid="stAppViewContainer"] * { color: #111827; }
-
-/* User bubble */
-.user-msg {
-    background: #f3f4f6 !important;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 14px;
-    padding: 10px 12px;
-    margin: 6px 0;
-    margin-left: auto;
-    max-width: 85%;
-    white-space: pre-wrap;
-    color: #111827 !important;
-}
-
-/* Assistant bubble (not used for final answer; kept for optional use) */
-.ai-msg {
-    background: #ffffff !important;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 14px;
-    padding: 10px 12px;
-    margin: 6px 0;
-    margin-right: auto;
-    max-width: 85%;
-    white-space: pre-wrap;
-    color: #111827 !important;
-}
-
-/* Answer card */
-.answer-card {
-    background: #ffffff !important;
-    border: 1px solid #e5e7eb !important;
-    border-radius: 14px !important;
-    padding: 16px 18px !important;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.06) !important;
-    line-height: 1.8 !important;
-    font-size: 18px !important;
-    white-space: normal;
-}
-
-.meta {
-    font-size: 0.75rem;
-    opacity: 0.75;
-    margin-bottom: 6px;
-    color: #374151 !important;
-}
-
-pre, code {
-    background: #f3f4f6 !important;
-    color: #111827 !important;
-}
-</style>
-""",
-    unsafe_allow_html=True,
-)
-
-# =========================
-# Imports from your core
-# =========================
 from core import (
     init_openai_client,
     list_available_domains,
@@ -97,55 +28,100 @@ from core import (
 
 DATA_DIR = Path("data")
 
-# =========================
-# Helpers
-# =========================
+
+st.set_page_config(
+    page_title="JCAR RAG – Inspector Chat",
+    page_icon="✈️",
+    layout="wide",
+)
+
+st.markdown(
+    """
+    <style>
+    /* Page layout */
+    .block-container { padding-top: 1.5rem; max-width: 1100px; }
+
+    /* Force light background */
+    html, body, .stApp, [data-testid="stAppViewContainer"] {
+        background: #ffffff !important;
+    }
+
+    /* Force readable text */
+    [data-testid="stAppViewContainer"] * {
+        color: #111827 !important;
+    }
+
+    /* Sidebar light */
+    [data-testid="stSidebar"], [data-testid="stSidebarContent"]{
+        background: #f9fafb !important;
+        border-right: 1px solid #e5e7eb !important;
+    }
+
+    /* User bubble (light) */
+    .user-msg {
+        background: #f3f4f6 !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 14px;
+        padding: 10px 12px;
+        margin: 6px 0;
+        margin-left: auto;
+        max-width: 85%;
+        white-space: pre-wrap;
+        color: #111827 !important;
+    }
+
+    /* Assistant bubble (light) */
+    .ai-msg {
+        background: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 14px;
+        padding: 10px 12px;
+        margin: 6px 0;
+        margin-right: auto;
+        max-width: 85%;
+        white-space: pre-wrap;
+        color: #111827 !important;
+    }
+
+    .meta {
+        font-size: 0.75rem;
+        opacity: 0.75;
+        margin-bottom: 6px;
+        color: #374151 !important;
+    }
+
+    /* If any code blocks appear */
+    pre, code {
+        background: #f3f4f6 !important;
+        color: #111827 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 def has_arabic(text: str) -> bool:
     return any("\u0600" <= c <= "\u06FF" for c in text)
 
 
-def _escape_html_keep_breaks(s: str) -> str:
-    if s is None:
-        return ""
-    s = str(s)
-    s = (
-        s.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace("\n", "<br>")
-    )
-    return s
-
-
-def render_user_message(text: str, meta: str = ""):
+def render_message(role: str, text: str, meta: str = ""):
     rtl = has_arabic(text)
     direction = "rtl" if rtl else "ltr"
     align = "right" if rtl else "left"
-    safe = _escape_html_keep_breaks(text)
+
+    if role == "user":
+        box = "user-msg"
+        header = "👤 المستخدم"
+    else:
+        box = "ai-msg"
+        header = "🛡️ JCAR Inspector"
 
     html = f"""
     <div dir="{direction}" style="text-align:{align}">
-        <div class="user-msg">
-            <div class="meta">👤 User {meta}</div>
-            {safe}
-        </div>
-    </div>
-    """
-    st.markdown(html, unsafe_allow_html=True)
-
-
-def render_answer_card(answer_text: str, meta: str = ""):
-    # Answer card supports Arabic RTL alignment
-    rtl = has_arabic(answer_text)
-    direction = "rtl" if rtl else "ltr"
-    align = "right" if rtl else "left"
-    safe = _escape_html_keep_breaks(answer_text)
-
-    html = f"""
-    <div dir="{direction}" style="text-align:{align}">
-        <div class="answer-card">
-            <div class="meta">🛡️ JCAR Inspector {meta}</div>
-            {safe}
+        <div class="{box}">
+            <div class="meta">{header} {meta}</div>
+            {text}
         </div>
     </div>
     """
@@ -189,14 +165,6 @@ def list_available_parts_from_metadata() -> List[str]:
     return sorted(parts, key=sort_key)
 
 
-def fmt_parts(parts: List[str]) -> str:
-    if not parts:
-        return ""
-    if len(parts) == 1:
-        return f"({parts[0]})"
-    return "(" + ", ".join(parts) + ")"
-
-
 ACK_WORDS = {
     "yes", "ok", "okay", "yep", "yeah",
     "نعم", "اه", "أه", "ايوه", "ايوا", "اها", "تمام",
@@ -221,7 +189,7 @@ def is_ack_for_original(user_text: str, last_answer: Optional[str]) -> bool:
         if tokens[0] not in ACK_WORDS and "original" not in t and "النص" not in t:
             return False
 
-    last = (last_answer or "").lower()
+    last = last_answer.lower()
     markers = [
         "original jcar wording",
         "original jcar text",
@@ -250,9 +218,18 @@ def build_original_text_from_contexts(contexts: List[Dict[str, Any]]) -> str:
     return "Here is the original JCAR text used in the previous answer:\n\n" + "\n\n-----\n\n".join(blocks)
 
 
+def fmt_parts(parts: List[str]) -> str:
+    if not parts:
+        return ""
+    if len(parts) == 1:
+        return f"({parts[0]})"
+    return "(" + ", ".join(parts) + ")"
+
+
 # =========================
 # Session state init
 # =========================
+
 if "client" not in st.session_state:
     st.session_state.client = init_openai_client()
 
@@ -272,9 +249,11 @@ client = st.session_state.client
 DOMAINS = st.session_state.domains
 PARTS = st.session_state.parts
 
+
 # =========================
 # Sidebar
 # =========================
+
 with st.sidebar:
     st.title("⚙️ Settings")
 
@@ -350,9 +329,11 @@ with st.sidebar:
         st.session_state.last_diag_warning = ""
         st.rerun()
 
+
 # =========================
 # Main
 # =========================
+
 st.title("JCAR RAG – Regulatory Inspector")
 st.caption("User-controlled scope (Domain/Part). Answers are strictly extracted from indexed JCAR text.")
 
@@ -362,9 +343,9 @@ if selected_domain == "ALL":
 if st.session_state.last_diag_warning:
     st.warning(st.session_state.last_diag_warning)
 
-# Show chat
+# show chat
 for item in st.session_state.chat:
-    meta = f"(Domain={item.get('domain')}, Mode={item.get('mode')})"
+    meta = f"(Domain={item['domain']}, Mode={item['mode']})"
     ap = item.get("allowed_parts")
     pm = item.get("part_mode")
     if pm and ap:
@@ -373,8 +354,8 @@ for item in st.session_state.chat:
         elif pm == "Multi-Part (Select)":
             meta += f" | Parts={','.join(ap)}"
 
-    render_user_message(item["question"], meta=meta)
-    render_answer_card(item["answer"])
+    render_message("user", item["question"], meta=meta)
+    render_message("assistant", item["answer"])
 
     if show_debug and item.get("debug_lines"):
         with st.expander("Debug lines"):
@@ -405,9 +386,9 @@ if submit:
             {
                 "question": user_text,
                 "answer": orig_text,
-                "domain": last_item.get("domain", "ALL"),
-                "mode": last_item.get("mode", "SHORT"),
-                "top_k": last_item.get("top_k", 5),
+                "domain": last_item["domain"],
+                "mode": last_item["mode"],
+                "top_k": last_item["top_k"],
                 "contexts": last_item.get("contexts", []),
                 "debug_lines": last_item.get("debug_lines", []),
                 "part_mode": last_item.get("part_mode"),
@@ -434,7 +415,7 @@ if submit:
     except Exception:
         st.session_state.last_diag_warning = ""
 
-    # Run RAG (REAL)
+    # Run RAG
     with st.spinner("Analyzing JCAR context..."):
         result = run_rag_query(
             client=client,
@@ -448,7 +429,7 @@ if submit:
     st.session_state.chat.append(
         {
             "question": user_text,
-            "answer": result.get("answer", ""),
+            "answer": result["answer"],
             "domain": selected_domain,
             "mode": answer_mode,
             "top_k": top_k,
