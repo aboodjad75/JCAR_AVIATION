@@ -1,0 +1,61 @@
+# =========================
+# Secrets (DO NOT UPLOAD)
+# =========================
+.env
+*.env
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+dist/
+build/
+
+# Virtual envs
+.venv/
+venv/
+ENV/
+env/
+
+# =========================
+# Streamlit
+# =========================
+.streamlit/secrets.toml
+.streamlit/cache/
+
+# =========================
+# Big / generated folders (your RAG assets)
+# =========================
+docs/
+data/
+datasets/
+embeddings/
+chroma/
+chromadb/
+vectorstore/
+faiss_index/
+indexes/
+outputs/
+logs/
+tmp/
+cache/
+
+# Large generated files
+*.npy
+*.npz
+*.pkl
+*.faiss
+*.index
+*.bin
+*.sqlite
+*.db
+
+# =========================
+# OS junk
+# =========================
+.DS_Store
+Thumbs.db
